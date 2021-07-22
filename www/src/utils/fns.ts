@@ -27,6 +27,15 @@ export const arrayMover = (
   return arr; // for testing purposes
 };
 
+export const missingFieldsReducer = (data: any) => (
+  acc: string[],
+  curr: string
+) => {
+  if (data[curr] === undefined) {
+    return [...acc, curr];
+  } else return acc;
+};
+
 export const sanitiseCallableName = (name: string) => {
   if (!name || typeof name !== "string") return "";
   return name
@@ -107,4 +116,39 @@ export async function asyncForEach(array: any[], callback: Function) {
 export const getCellValue = (row: Record<string, any>, key: string) => {
   if (key.includes(".")) return _get(row, key);
   return row[key];
+};
+
+// convert dot notation to nested object
+export function deepen(obj) {
+  const result = {};
+
+  // For each object path (property key) in the object
+  for (const objectPath in obj) {
+    // Split path into component parts
+    const parts = objectPath.split(".");
+
+    // Create sub-objects along path as needed
+    let target = result;
+    while (parts.length > 1) {
+      const part = parts.shift();
+      target = target[part!] = target[part!] || {};
+    }
+
+    // Set value at end of path
+    target[parts[0]] = obj[objectPath];
+  }
+
+  return result;
+}
+
+export const deepMerge = (target, source) => {
+  for (const key in source) {
+    if (source[key] && typeof source[key] === "object") {
+      if (!target[key]) target[key] = {};
+      deepMerge(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+  return target;
 };
